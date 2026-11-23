@@ -18,9 +18,8 @@ h2{font-size:1.35rem;margin:1.6em 0 .4em}
 .card .prov{font-size:.85rem;color:var(--soft);margin-top:.6em}
 .provenance{font-size:.9rem;color:var(--soft);font-style:italic;margin:.4em 0 1.4em}
 .header-img{width:100%;border-radius:10px;margin:0 0 1.2em;display:block}
-figure.closing{margin:2em 0 0;text-align:center}
-figure.closing img{max-width:340px;width:100%;border-radius:10px}
-figure.closing figcaption{font-size:.85rem;color:var(--soft);margin-top:.5em;font-style:italic}
+.float-right{float:right;width:240px;max-width:45%;border-radius:10px;margin:.3em 0 1em 1.2em}
+.colophon{clear:both}
 .colophon{border-top:1px solid #d8d0c2;margin-top:3em;padding-top:1em;font-size:.9rem;color:var(--soft)}
 .colophon dt{font-weight:bold;color:var(--ink)}
 .colophon dd{margin:0 0 .6em}
