@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Deep Card</title>
+<style>
+  :root{
+    --gold:#c9a53f; --gold-bright:#e8c96a; --gold-dim:rgba(201,165,63,.55);
+    --ink:#efe7d3; --ink-dim:#b9b09a;
+    --bg:#0b130d;
+    --panel:#101b13;
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100vh;
+    background:radial-gradient(120% 90% at 50% 0%, #1a2b1f 0%, #101c13 45%, var(--bg) 100%);
+    color:var(--ink);
+    font-family:var(--serif);
+    display:flex; flex-direction:column; align-items:center;
+    padding:34px 14px 56px;
+  }
+  header{text-align:center; margin-bottom:20px}
+  h1{
+    margin:0; font-weight:normal; font-style:italic;
+    font-size:clamp(30px,6vw,44px); letter-spacing:.02em; color:var(--gold-bright);
+  }
+  header p{margin:8px 0 0; color:var(--ink-dim); font-style:italic; font-size:15px}
+
+  /* ---------- the card ---------- */
+  .card-wrap{
+    position:relative;
+    width:min(92vw,560px);
+    aspect-ratio:896/1200;
+    border-radius:6px;
+    box-shadow:0 18px 60px rgba(0,0,0,.65), 0 0 0 1px rgba(201,165,63,.25);
+  }
+  .card-wrap > img.card{
+    display:block; width:100%; height:100%; object-fit:cover; border-radius:6px;
+  }
+  .hotspot{
+    position:absolute; transform:translate(-50%,-50%);
+    background:transparent; border:0; padding:0; margin:0;
+    cursor:pointer; border-radius:50%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .hs-dot{width:9%; aspect-ratio:1}
+  .hs-canopy{width:34%; height:22%}
+  .hs-band{width:30%; height:8%}
+  .hotspot:focus{outline:none}
+  .hotspot:focus-visible{
+    outline:2px solid var(--gold-bright); outline-offset:1px;
+    background:rgba(201,165,63,.14);
+    box-shadow:0 0 0 4px rgba(201,165,63,.18);
+  }
+  /* the pulse flourish: a gold ring blooms once on a hotspot */
+  .hotspot.pulsing::after{
+    content:""; position:absolute; inset:0; border-radius:50%;
+    border:2px solid var(--gold-bright);
+    animation:pulse-ring 1.15s ease-out 2;
+    pointer-events:none;
+  }
+  @keyframes pulse-ring{
+    0%{transform:scale(.55); opacity:1}
+    100%{transform:scale(1.9); opacity:0}
+  }
+
+  /* ---------- the two buttons ---------- */
+  .actions{
+    display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+    margin-top:26px;
+  }
+  .gold-btn{
+    display:inline-flex; align-items:center; gap:10px;
+    background:rgba(201,165,63,.06);
+    border:1px solid var(--gold-dim); border-radius:999px;
+    color:var(--gold-bright);
+    font-family:var(--serif); font-size:17px; letter-spacing:.03em;
+    padding:11px 22px 11px 18px; cursor:pointer;
+    transition:background .2s,border-color .2s,transform .15s;
+  }
+  .gold-btn:hover{background:rgba(201,165,63,.14); border-color:var(--gold-bright)}
+  .gold-btn:active{transform:scale(.98)}
+  .gold-btn:focus-visible{outline:2px solid var(--gold-bright); outline-offset:3px}
+  .gold-btn svg{width:22px; height:22px; flex:none}
+  footer{margin-top:30px; color:var(--ink-dim); font-size:13px; font-style:italic; text-align:center}
+
+  /* ---------- overlays (viewer + sheets) ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:40;
+    background:rgba(4,9,6,.93);
+    display:none; align-items:center; justify-content:center;
+    padding:18px;
+  }
+  .overlay.open{display:flex}
+  .sheet{
+    background:var(--panel);
+    border:1px solid rgba(201,165,63,.35); border-radius:10px;
+    box-shadow:0 24px 80px rgba(0,0,0,.7);
+    max-width:1120px; width:100%; max-height:92vh; overflow:auto;
+    padding:26px clamp(16px,3.5vw,34px) 30px;
+  }
+  .sheet-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+    border-bottom:1px solid rgba(201,165,63,.25); padding-bottom:12px; margin-bottom:20px;
+  }
+  .sheet-head h2{margin:0; font-weight:normal; font-style:italic; color:var(--gold-bright); font-size:clamp(22px,4vw,30px)}
+  .close-btn{
+    flex:none; background:none; border:1px solid var(--gold-dim); border-radius:999px;
+    color:var(--gold-bright); font-family:var(--sans); font-size:13.5px;
+    padding:7px 15px; cursor:pointer;
+  }
+  .close-btn:hover{border-color:var(--gold-bright); background:rgba(201,165,63,.12)}
+  .close-btn:focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px}
+
+  /* Key sheet */
+  .key-grid{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:28px; align-items:start}
+  .key-grid figure{margin:0}
+  .key-grid figure img{display:block; width:100%; height:auto; border-radius:4px; background:#f4efe2}
+  .key-intro{margin-top:0}
+  .key-intro h3{margin:0 0 8px; font-weight:normal; font-style:italic; color:var(--gold-bright); font-size:19px}
+  .key-intro p{margin:0; line-height:1.55; color:var(--ink); font-size:15.5px}
+  ol.key-list{list-style:none; margin:18px 0 0; padding:0}
+  ol.key-list li{margin:0 0 4px}
+  .key-entry{
+    display:flex; gap:11px; align-items:flex-start; width:100%; text-align:left;
+    background:none; border:0; border-radius:6px; padding:7px 8px; cursor:pointer;
+    color:var(--ink); font-family:var(--serif); font-size:15px; line-height:1.5;
+  }
+  .key-entry:hover{background:rgba(201,165,63,.10)}
+  .key-entry:focus-visible{outline:2px solid var(--gold-bright); outline-offset:1px}
+  .key-num{
+    flex:none; width:24px; height:24px; margin-top:1px; border-radius:50%;
+    border:1px solid var(--gold-dim); color:var(--gold-bright);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-family:var(--sans);
+  }
+  .key-entry strong{color:#fff; font-weight:600}
+  .ghost-line{
+    margin:18px 0 0; padding:12px 8px 0; border-top:1px solid rgba(201,165,63,.25);
+    font-style:italic; color:var(--ink-dim); font-size:15px; line-height:1.55;
+  }
+
+  /* Gallery sheet */
+  .gallery-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px 20px}
+  .g-item{margin:0}
+  .g-open{
+    display:block; width:100%; background:none; border:0; padding:0; cursor:pointer;
+    font-family:var(--serif); color:var(--ink); text-align:left;
+  }
+  .g-open:focus-visible{outline:2px solid var(--gold-bright); outline-offset:3px; border-radius:4px}
+  .g-imgwrap{position:relative; display:block; border-radius:4px; overflow:hidden; box-shadow:0 6px 22px rgba(0,0,0,.45)}
+  .g-imgwrap img{display:block; width:100%; height:auto}
+  .badge{
+    position:absolute; right:9px; bottom:9px;
+    width:30px; height:30px; border-radius:50%;
+    background:#fff; color:#2a2118; border:2px solid #2a2118;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--sans); font-weight:700; font-size:14.5px;
+  }
+  .g-cap{display:block; margin-top:8px; font-size:15px; color:var(--ink)}
+  .g-open:hover .g-cap{color:var(--gold-bright)}
+
+  /* ---------- fall-in viewer ---------- */
+  #viewer{z-index:60; flex-direction:column; padding:16px}
+  .viewer-box{
+    display:flex; flex-direction:column; align-items:center; gap:13px;
+    max-width:min(94vw,1080px); width:100%;
+  }
+  .viewer-fig{
+    margin:0; width:100%; text-align:center;
+    animation:fall-in .55s cubic-bezier(.22,.9,.3,1) both;
+  }
+  @keyframes fall-in{from{transform:scale(.82); opacity:0} to{transform:scale(1); opacity:1}}
+  .viewer-fig img{
+    max-width:100%; max-height:66vh; width:auto; height:auto;
+    border-radius:6px; box-shadow:0 22px 70px rgba(0,0,0,.75), 0 0 0 1px rgba(201,165,63,.3);
+  }
+  .viewer-title{display:flex; align-items:center; gap:12px; justify-content:center; flex-wrap:wrap}
+  .viewer-title .badge{position:static; width:34px; height:34px; font-size:16.5px}
+  .viewer-title h2{margin:0; font-weight:normal; font-size:clamp(21px,4.4vw,30px); color:#fff}
+  .viewer-cap{
+    margin:0; max-width:640px; text-align:center; line-height:1.55;
+    color:var(--ink); font-size:16px;
+  }
+  .viewer-nav{display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; margin-top:2px}
+  .nav-btn{
+    background:rgba(201,165,63,.07); border:1px solid var(--gold-dim); border-radius:999px;
+    color:var(--gold-bright); font-family:var(--sans); font-size:14px;
+    padding:9px 18px; cursor:pointer;
+  }
+  .nav-btn:hover{border-color:var(--gold-bright); background:rgba(201,165,63,.15)}
+  .nav-btn:focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px}
+  .nav-btn.back{font-size:14.5px; padding:10px 20px}
+
+  @media (max-width:760px){
+    .key-grid{grid-template-columns:1fr}
+    .gallery-grid{grid-template-columns:1fr}
+    body{padding-top:24px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .viewer-fig{animation:none}
+    .hotspot.pulsing::after{animation:none; transform:scale(1.25); opacity:.9}
+    .gold-btn{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Deep Card</h1>
+  <p>Season&rsquo;s Greetings</p>
+</header>
+
+<main>
+  <div class="card-wrap" id="cardWrap">
+    <img class="card" src="assets/deep-card-assembled-web.jpg" alt="A watercolor Christmas card: a tree, a fireplace, a frosted window, and presents" width="896" height="1200">
+        <button class="hotspot hs-dot" style="left:40.0%;top:66.0%" data-world="1" aria-label="Hidden world 1: Golden Gate Bridge, 1936"></button>
+        <button class="hotspot hs-dot" style="left:56.5%;top:32.5%" data-world="2" aria-label="Hidden world 2: The Treasury at Petra"></button>
+        <button class="hotspot hs-dot" style="left:50.0%;top:28.0%" data-world="3" aria-label="Hidden world 3: A Great Hall at Christmas"></button>
+        <button class="hotspot hs-dot" style="left:40.0%;top:49.0%" data-world="4" aria-label="Hidden world 4: A Hobbit Hole, with a Visitor"></button>
+        <button class="hotspot hs-dot" style="left:41.5%;top:36.0%" data-world="5" aria-label="Hidden world 5: Catapult Launch at Dawn"></button>
+        <button class="hotspot hs-dot" style="left:60.0%;top:45.5%" data-world="6" aria-label="Hidden world 6: Tenochtitlan"></button>
+        <button class="hotspot hs-dot" style="left:49.0%;top:41.0%" data-world="7" aria-label="Hidden world 7: A Cantina, Far Away"></button>
+        <button class="hotspot hs-dot" style="left:57.0%;top:67.0%" data-world="8" aria-label="Hidden world 8: Lalibela"></button>
+        <button class="hotspot hs-dot" style="left:49.0%;top:55.0%" data-world="9" aria-label="Hidden world 9: The Gathering"></button>
+        <button class="hotspot hs-dot" style="left:65.5%;top:60.0%" data-world="10" aria-label="Hidden world 10: Rick’s Café"></button>
+        <button class="hotspot hs-dot" style="left:34.5%;top:56.5%" data-world="11" aria-label="Hidden world 11: A Wizarding Street"></button>
+        <button class="hotspot hs-dot" style="left:50.5%;top:75.5%" data-world="12" aria-label="Hidden world 12: The Hanging Gardens"></button>
+        <button class="hotspot hs-dot" style="left:31.5%;top:83.0%" data-world="13" aria-label="Hidden world 13: The Great Wall in Snow"></button>
+        <button class="hotspot hs-dot" style="left:47.5%;top:85.5%" data-world="14" aria-label="Hidden world 14: The Boulevard Under the Sea"></button>
+        <button class="hotspot hs-dot" style="left:41.5%;top:88.5%" data-world="15" aria-label="Hidden world 15: The Emerald City"></button>
+        <button class="hotspot hs-dot" style="left:54.5%;top:89.5%" data-world="16" aria-label="Hidden world 16: The White City, 1893"></button>
+        <button class="hotspot hs-dot" style="left:62.5%;top:84.5%" data-world="17" aria-label="Hidden world 17: The Wrapping Paper"></button>
+        <button class="hotspot hs-dot" style="left:92.5%;top:20.5%" data-world="18" aria-label="Hidden world 18: The Clock"></button>
+        <button class="hotspot hs-canopy" style="left:46.0%;top:31.5%" data-world="19" aria-label="Hidden world 19: The Branches"></button>
+        <button class="hotspot hs-band" style="left:81.5%;top:39.5%" data-world="20" aria-label="Hidden world 20: The Garland"></button>
+  </div>
+
+  <div class="actions">
+    <button class="gold-btn" id="openKey" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15.5" r="4.2"/><path d="M11.2 12.3 20 3.5"/><path d="M16.4 7.1l3 3"/><path d="M13.6 9.9l2.1 2.1"/></svg>
+      The Key
+    </button>
+    <button class="gold-btn" id="openGallery" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7.4" height="7.4" rx="1"/><rect x="13.1" y="3.5" width="7.4" height="7.4" rx="1"/><rect x="3.5" y="13.1" width="7.4" height="7.4" rx="1"/><rect x="13.1" y="13.1" width="7.4" height="7.4" rx="1"/></svg>
+      The Gallery
+    </button>
+  </div>
+
+  <footer>Look closer.</footer>
+</main>
+
+<!-- ============ THE KEY ============ -->
+<div class="overlay" id="keySheet" role="dialog" aria-modal="true" aria-labelledby="keyTitle" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="keyTitle">The Key</h2>
+      <button class="close-btn" data-close="keySheet">Close &#10005;</button>
+    </div>
+    <div class="key-grid">
+      <figure>
+        <img src="assets/key-line-drawing-web.jpg" alt="A numbered line drawing of the card, marking the twenty hidden worlds" loading="lazy" width="1100" height="1473">
+      </figure>
+      <div>
+        <div class="key-intro">
+          <h3>What you are looking at</h3>
+          <p>At first glance, an ordinary Christmas card. Look closer. Twenty small doors stand open in it — in ornaments, presents, the clock, the branches, even the wrapping paper — and every door opens on a real place, a real moment, or a world that ought to be real. This is the key to them.</p>
+        </div>
+        <ol class="key-list">
+            <li><button class="key-entry" data-world="1"><span class="key-num">1</span><span class="key-text"><strong>Golden Gate Bridge, 1936</strong> — in the blue ornament’s reflection: the towers up, the cables spun, the deck not yet joined, seen through Marin pines.</span></button></li>
+            <li><button class="key-entry" data-world="2"><span class="key-num">2</span><span class="key-text"><strong>The Treasury at Petra</strong> — inside the crimson ornament: the rose-red facade at the end of the Siq.</span></button></li>
+            <li><button class="key-entry" data-world="3"><span class="key-num">3</span><span class="key-text"><strong>A Great Hall at Christmas</strong> — in the gold ornament’s globe: floating candles, snow falling indoors, the feast just finished.</span></button></li>
+            <li><button class="key-entry" data-world="4"><span class="key-num">4</span><span class="key-text"><strong>A Hobbit Hole, with a Visitor</strong> — in the emerald ornament’s reflection: a round green door, and on the path a tall gaunt gentleman with a chin beard. You may know him.</span></button></li>
+            <li><button class="key-entry" data-world="5"><span class="key-num">5</span><span class="key-text"><strong>Catapult Launch at Dawn</strong> — inside the silver ornament: a jet leaving a carrier’s deck as the sun comes up.</span></button></li>
+            <li><button class="key-entry" data-world="6"><span class="key-num">6</span><span class="key-text"><strong>Tenochtitlan</strong> — in the ruby ornament’s globe: the lake city of the Aztecs, twin shrines on the Great Temple, volcanoes on the horizon.</span></button></li>
+            <li><button class="key-entry" data-world="7"><span class="key-num">7</span><span class="key-text"><strong>A Cantina, Far Away</strong> — in the sapphire ornament’s reflection: a rough bar in a spaceport town, and in the doorway a lady with enormous eyes and a cigarette holder. You may know her too.</span></button></li>
+            <li><button class="key-entry" data-world="8"><span class="key-num">8</span><span class="key-text"><strong>Lalibela</strong> — inside the amber ornament: a church carved down into living rock in Ethiopia, its roof a cross.</span></button></li>
+            <li><button class="key-entry" data-world="9"><span class="key-num">9</span><span class="key-text"><strong>The Gathering</strong> — in the pearl ornament’s globe: a schoolyard climbing frame in Bodega Bay, and the birds are still deciding.</span></button></li>
+            <li><button class="key-entry" data-world="10"><span class="key-num">10</span><span class="key-text"><strong>Rick’s Café</strong> — in the burgundy ornament’s reflection: Casablanca, 1941. Everyone comes to Rick’s. Tonight, in the far archway, so has a gentleman with a cigar and a bow tie.</span></button></li>
+            <li><button class="key-entry" data-world="11"><span class="key-num">11</span><span class="key-text"><strong>A Wizarding Street</strong> — inside the teal ornament: a crooked, lamplit shopping street in London, and a striking lady with wide-set eyes stepping out of a shop.</span></button></li>
+            <li><button class="key-entry" data-world="12"><span class="key-num">12</span><span class="key-text"><strong>The Hanging Gardens</strong> — in the bronze ornament’s reflection: Babylon’s terraced gardens — and through the lowest arch, impossibly, the Pharos of Alexandria standing in the sea.</span></button></li>
+            <li><button class="key-entry" data-world="13"><span class="key-num">13</span><span class="key-text"><strong>The Great Wall in Snow</strong> — in the tall red present: follow the footprints to the watchtower door. Someone is keeping warm inside.</span></button></li>
+            <li><button class="key-entry" data-world="14"><span class="key-num">14</span><span class="key-text"><strong>The Boulevard Under the Sea</strong> — in the green present: a Parisian street on the ocean floor, and in one lit window, dinner is still being served.</span></button></li>
+            <li><button class="key-entry" data-world="15"><span class="key-num">15</span><span class="key-text"><strong>The Emerald City</strong> — in the gold present: at the end of a yellow brick road, across a field of poppies.</span></button></li>
+            <li><button class="key-entry" data-world="16"><span class="key-num">16</span><span class="key-text"><strong>The White City, 1893</strong> — in the small blue present: Chicago’s great fair at night, a hundred thousand electric lights, and the Republic standing in her lagoon.</span></button></li>
+            <li><button class="key-entry" data-world="17"><span class="key-num">17</span><span class="key-text"><strong>The Wrapping Paper</strong> — on the last present: it looks like a printed Alpine scene. It isn’t printed. Look as close as you like.</span></button></li>
+            <li><button class="key-entry" data-world="18"><span class="key-num">18</span><span class="key-text"><strong>The Clock</strong> — its glass is a Dutch polder at dusk. The windmill’s sails say 10:10; the canal finishes the cross; and where 12 should be, there is only the evening star.</span></button></li>
+            <li><button class="key-entry" data-world="19"><span class="key-num">19</span><span class="key-text"><strong>The Branches</strong> — the tree is a forest at its own scale: a stream, a twig bridge, fireflies, and a geode glowing in a fork.</span></button></li>
+            <li><button class="key-entry" data-world="20"><span class="key-num">20</span><span class="key-text"><strong>The Garland</strong> — the holly is inhabited. Fae, elves, and the woodland neighbors are celebrating. (There is no Santa. He trusts them with it.)</span></button></li>
+        </ol>
+        <p class="ghost-line">And one thing that is not numbered: look out of the window, into the snow, a moment longer than you meant to.</p>
+        <!-- AI NOTE: Scot's words go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ THE GALLERY ============ -->
+<div class="overlay" id="gallerySheet" role="dialog" aria-modal="true" aria-labelledby="galleryTitle" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="galleryTitle">The Gallery</h2>
+      <button class="close-btn" data-close="gallerySheet">Close &#10005;</button>
+    </div>
+    <div class="gallery-grid">
+          <figure class="g-item">
+            <button class="g-open" data-world="1" aria-label="Open hidden world 1: Golden Gate Bridge, 1936">
+              <span class="g-imgwrap"><img src="assets/plate-01-golden-gate-construction-web.jpg" alt="Golden Gate Bridge, 1936" loading="lazy"><span class="badge">1</span></span>
+              <span class="g-cap">Golden Gate Bridge, 1936</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="2" aria-label="Open hidden world 2: The Treasury at Petra">
+              <span class="g-imgwrap"><img src="assets/plate-02-petra-treasury-web.jpg" alt="The Treasury at Petra" loading="lazy"><span class="badge">2</span></span>
+              <span class="g-cap">The Treasury at Petra</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="3" aria-label="Open hidden world 3: A Great Hall at Christmas">
+              <span class="g-imgwrap"><img src="assets/plate-03-hogwarts-great-hall-web.jpg" alt="A Great Hall at Christmas" loading="lazy"><span class="badge">3</span></span>
+              <span class="g-cap">A Great Hall at Christmas</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="4" aria-label="Open hidden world 4: A Hobbit Hole, with a Visitor">
+              <span class="g-imgwrap"><img src="assets/plate-04-hobbit-hole-lincoln-web.jpg" alt="A Hobbit Hole, with a Visitor" loading="lazy"><span class="badge">4</span></span>
+              <span class="g-cap">A Hobbit Hole, with a Visitor</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="5" aria-label="Open hidden world 5: Catapult Launch at Dawn">
+              <span class="g-imgwrap"><img src="assets/plate-05-carrier-launch-web.jpg" alt="Catapult Launch at Dawn" loading="lazy"><span class="badge">5</span></span>
+              <span class="g-cap">Catapult Launch at Dawn</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="6" aria-label="Open hidden world 6: Tenochtitlan">
+              <span class="g-imgwrap"><img src="assets/plate-06-tenochtitlan-web.jpg" alt="Tenochtitlan" loading="lazy"><span class="badge">6</span></span>
+              <span class="g-cap">Tenochtitlan</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="7" aria-label="Open hidden world 7: A Cantina, Far Away">
+              <span class="g-imgwrap"><img src="assets/plate-07-cantina-bette-davis-web.jpg" alt="A Cantina, Far Away" loading="lazy"><span class="badge">7</span></span>
+              <span class="g-cap">A Cantina, Far Away</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="8" aria-label="Open hidden world 8: Lalibela">
+              <span class="g-imgwrap"><img src="assets/plate-08-lalibela-web.jpg" alt="Lalibela" loading="lazy"><span class="badge">8</span></span>
+              <span class="g-cap">Lalibela</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="9" aria-label="Open hidden world 9: The Gathering">
+              <span class="g-imgwrap"><img src="assets/plate-09-the-birds-bodega-web.jpg" alt="The Gathering" loading="lazy"><span class="badge">9</span></span>
+              <span class="g-cap">The Gathering</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="10" aria-label="Open hidden world 10: Rick’s Café">
+              <span class="g-imgwrap"><img src="assets/plate-10-ricks-cafe-churchill-web.jpg" alt="Rick’s Café" loading="lazy"><span class="badge">10</span></span>
+              <span class="g-cap">Rick’s Café</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="11" aria-label="Open hidden world 11: A Wizarding Street">
+              <span class="g-imgwrap"><img src="assets/plate-11-diagon-alley-anya-web.jpg" alt="A Wizarding Street" loading="lazy"><span class="badge">11</span></span>
+              <span class="g-cap">A Wizarding Street</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="12" aria-label="Open hidden world 12: The Hanging Gardens">
+              <span class="g-imgwrap"><img src="assets/plate-12-hanging-gardens-pharos-web.jpg" alt="The Hanging Gardens" loading="lazy"><span class="badge">12</span></span>
+              <span class="g-cap">The Hanging Gardens</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="13" aria-label="Open hidden world 13: The Great Wall in Snow">
+              <span class="g-imgwrap"><img src="assets/plate-13-great-wall-snow-web.jpg" alt="The Great Wall in Snow" loading="lazy"><span class="badge">13</span></span>
+              <span class="g-cap">The Great Wall in Snow</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="14" aria-label="Open hidden world 14: The Boulevard Under the Sea">
+              <span class="g-imgwrap"><img src="assets/plate-14-underwater-boulevard-web.jpg" alt="The Boulevard Under the Sea" loading="lazy"><span class="badge">14</span></span>
+              <span class="g-cap">The Boulevard Under the Sea</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="15" aria-label="Open hidden world 15: The Emerald City">
+              <span class="g-imgwrap"><img src="assets/plate-15-emerald-city-web.jpg" alt="The Emerald City" loading="lazy"><span class="badge">15</span></span>
+              <span class="g-cap">The Emerald City</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="16" aria-label="Open hidden world 16: The White City, 1893">
+              <span class="g-imgwrap"><img src="assets/plate-16-white-city-1893-web.jpg" alt="The White City, 1893" loading="lazy"><span class="badge">16</span></span>
+              <span class="g-cap">The White City, 1893</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="17" aria-label="Open hidden world 17: The Wrapping Paper">
+              <span class="g-imgwrap"><img src="assets/plate-17-alpine-print-web.jpg" alt="The Wrapping Paper" loading="lazy"><span class="badge">17</span></span>
+              <span class="g-cap">The Wrapping Paper</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="18" aria-label="Open hidden world 18: The Clock">
+              <span class="g-imgwrap"><img src="assets/element-clock-polder-web.jpg" alt="The Clock" loading="lazy"><span class="badge">18</span></span>
+              <span class="g-cap">The Clock</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="19" aria-label="Open hidden world 19: The Branches">
+              <span class="g-imgwrap"><img src="assets/element-branches-forest-web.jpg" alt="The Branches" loading="lazy"><span class="badge">19</span></span>
+              <span class="g-cap">The Branches</span>
+            </button>
+          </figure>
+          <figure class="g-item">
+            <button class="g-open" data-world="20" aria-label="Open hidden world 20: The Garland">
+              <span class="g-imgwrap"><img src="assets/element-holly-population-web.jpg" alt="The Garland" loading="lazy"><span class="badge">20</span></span>
+              <span class="g-cap">The Garland</span>
+            </button>
+          </figure>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FALL-IN VIEWER ============ -->
+<div class="overlay" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewerName" hidden>
+  <div class="viewer-box">
+    <figure class="viewer-fig" id="viewerFig">
+      <img id="viewerImg" src="" alt="">
+    </figure>
+    <div class="viewer-title">
+      <span class="badge" id="viewerBadge">1</span>
+      <h2 id="viewerName"></h2>
+    </div>
+    <p class="viewer-cap" id="viewerCap"></p>
+    <div class="viewer-nav">
+      <button class="nav-btn" id="prevWorld">&#8592; Prev</button>
+      <button class="nav-btn back" id="backToCard">Back to the card</button>
+      <button class="nav-btn" id="nextWorld">Next &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var WORLDS = [{"n": 1, "name": "Golden Gate Bridge, 1936", "desc": "in the blue ornament’s reflection: the towers up, the cables spun, the deck not yet joined, seen through Marin pines.", "img": "assets/plate-01-golden-gate-construction-web.jpg"}, {"n": 2, "name": "The Treasury at Petra", "desc": "inside the crimson ornament: the rose-red facade at the end of the Siq.", "img": "assets/plate-02-petra-treasury-web.jpg"}, {"n": 3, "name": "A Great Hall at Christmas", "desc": "in the gold ornament’s globe: floating candles, snow falling indoors, the feast just finished.", "img": "assets/plate-03-hogwarts-great-hall-web.jpg"}, {"n": 4, "name": "A Hobbit Hole, with a Visitor", "desc": "in the emerald ornament’s reflection: a round green door, and on the path a tall gaunt gentleman with a chin beard. You may know him.", "img": "assets/plate-04-hobbit-hole-lincoln-web.jpg"}, {"n": 5, "name": "Catapult Launch at Dawn", "desc": "inside the silver ornament: a jet leaving a carrier’s deck as the sun comes up.", "img": "assets/plate-05-carrier-launch-web.jpg"}, {"n": 6, "name": "Tenochtitlan", "desc": "in the ruby ornament’s globe: the lake city of the Aztecs, twin shrines on the Great Temple, volcanoes on the horizon.", "img": "assets/plate-06-tenochtitlan-web.jpg"}, {"n": 7, "name": "A Cantina, Far Away", "desc": "in the sapphire ornament’s reflection: a rough bar in a spaceport town, and in the doorway a lady with enormous eyes and a cigarette holder. You may know her too.", "img": "assets/plate-07-cantina-bette-davis-web.jpg"}, {"n": 8, "name": "Lalibela", "desc": "inside the amber ornament: a church carved down into living rock in Ethiopia, its roof a cross.", "img": "assets/plate-08-lalibela-web.jpg"}, {"n": 9, "name": "The Gathering", "desc": "in the pearl ornament’s globe: a schoolyard climbing frame in Bodega Bay, and the birds are still deciding.", "img": "assets/plate-09-the-birds-bodega-web.jpg"}, {"n": 10, "name": "Rick’s Café", "desc": "in the burgundy ornament’s reflection: Casablanca, 1941. Everyone comes to Rick’s. Tonight, in the far archway, so has a gentleman with a cigar and a bow tie.", "img": "assets/plate-10-ricks-cafe-churchill-web.jpg"}, {"n": 11, "name": "A Wizarding Street", "desc": "inside the teal ornament: a crooked, lamplit shopping street in London, and a striking lady with wide-set eyes stepping out of a shop.", "img": "assets/plate-11-diagon-alley-anya-web.jpg"}, {"n": 12, "name": "The Hanging Gardens", "desc": "in the bronze ornament’s reflection: Babylon’s terraced gardens — and through the lowest arch, impossibly, the Pharos of Alexandria standing in the sea.", "img": "assets/plate-12-hanging-gardens-pharos-web.jpg"}, {"n": 13, "name": "The Great Wall in Snow", "desc": "in the tall red present: follow the footprints to the watchtower door. Someone is keeping warm inside.", "img": "assets/plate-13-great-wall-snow-web.jpg"}, {"n": 14, "name": "The Boulevard Under the Sea", "desc": "in the green present: a Parisian street on the ocean floor, and in one lit window, dinner is still being served.", "img": "assets/plate-14-underwater-boulevard-web.jpg"}, {"n": 15, "name": "The Emerald City", "desc": "in the gold present: at the end of a yellow brick road, across a field of poppies.", "img": "assets/plate-15-emerald-city-web.jpg"}, {"n": 16, "name": "The White City, 1893", "desc": "in the small blue present: Chicago’s great fair at night, a hundred thousand electric lights, and the Republic standing in her lagoon.", "img": "assets/plate-16-white-city-1893-web.jpg"}, {"n": 17, "name": "The Wrapping Paper", "desc": "on the last present: it looks like a printed Alpine scene. It isn’t printed. Look as close as you like.", "img": "assets/plate-17-alpine-print-web.jpg"}, {"n": 18, "name": "The Clock", "desc": "its glass is a Dutch polder at dusk. The windmill’s sails say 10:10; the canal finishes the cross; and where 12 should be, there is only the evening star.", "img": "assets/element-clock-polder-web.jpg"}, {"n": 19, "name": "The Branches", "desc": "the tree is a forest at its own scale: a stream, a twig bridge, fireflies, and a geode glowing in a fork.", "img": "assets/element-branches-forest-web.jpg"}, {"n": 20, "name": "The Garland", "desc": "the holly is inhabited. Fae, elves, and the woodland neighbors are celebrating. (There is no Santa. He trusts them with it.)", "img": "assets/element-holly-population-web.jpg"}];
+var byNum = {};
+WORLDS.forEach(function(w){ byNum[w.n] = w; });
+
+var lastFocus = null;
+function showOverlay(el){
+  lastFocus = document.activeElement;
+  el.hidden = false;
+  requestAnimationFrame(function(){ el.classList.add("open"); });
+  document.body.style.overflow = "hidden";
+}
+function hideOverlay(el){
+  el.classList.remove("open");
+  el.hidden = true;
+  document.body.style.overflow = "";
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+function focusFirst(el){
+  var b = el.querySelector("button");
+  if (b) b.focus();
+}
+
+/* ----- sheets ----- */
+var keySheet = document.getElementById("keySheet");
+var gallerySheet = document.getElementById("gallerySheet");
+document.getElementById("openKey").addEventListener("click", function(){
+  showOverlay(keySheet); focusFirst(keySheet);
+});
+document.getElementById("openGallery").addEventListener("click", function(){
+  showOverlay(gallerySheet); focusFirst(gallerySheet);
+});
+document.querySelectorAll("[data-close]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    hideOverlay(document.getElementById(btn.getAttribute("data-close")));
+  });
+});
+[keySheet, gallerySheet].forEach(function(sheet){
+  sheet.addEventListener("click", function(ev){ if (ev.target === sheet) hideOverlay(sheet); });
+});
+
+/* ----- fall-in viewer ----- */
+var viewer = document.getElementById("viewer");
+var viewerFig = document.getElementById("viewerFig");
+var viewerImg = document.getElementById("viewerImg");
+var current = 1;
+
+function openWorld(n, originEl){
+  var w = byNum[n]; if (!w) return;
+  current = n;
+  viewerImg.src = w.img;
+  viewerImg.alt = w.name;
+  document.getElementById("viewerBadge").textContent = w.n;
+  document.getElementById("viewerName").textContent = w.name;
+  document.getElementById("viewerCap").textContent = w.desc;
+  if (originEl){
+    var r = originEl.getBoundingClientRect();
+    var ox = ((r.left + r.width/2) / window.innerWidth) * 100;
+    var oy = ((r.top + r.height/2) / window.innerHeight) * 100;
+    viewerFig.style.transformOrigin = ox + "% " + oy + "%";
+  } else {
+    viewerFig.style.transformOrigin = "50% 50%";
+  }
+  /* restart the fall-in animation */
+  viewerFig.style.animation = "none";
+  void viewerFig.offsetWidth;
+  viewerFig.style.animation = "";
+  if (viewer.hidden) showOverlay(viewer);
+  document.getElementById("backToCard").focus();
+}
+function closeViewer(){ hideOverlay(viewer); }
+document.getElementById("backToCard").addEventListener("click", closeViewer);
+document.getElementById("prevWorld").addEventListener("click", function(){
+  openWorld(current === 1 ? WORLDS.length : current - 1, null);
+});
+document.getElementById("nextWorld").addEventListener("click", function(){
+  openWorld(current === WORLDS.length ? 1 : current + 1, null);
+});
+viewer.addEventListener("click", function(ev){ if (ev.target === viewer) closeViewer(); });
+
+/* hotspots */
+document.querySelectorAll(".hotspot").forEach(function(hs){
+  hs.addEventListener("click", function(){
+    openWorld(parseInt(hs.getAttribute("data-world"), 10), hs);
+  });
+});
+/* gallery images */
+document.querySelectorAll(".g-open").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var n = parseInt(btn.getAttribute("data-world"), 10);
+    hideOverlay(gallerySheet);
+    openWorld(n, null);
+  });
+});
+/* Key entries: close the sheet and pulse the portal on the card */
+document.querySelectorAll(".key-entry").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var n = btn.getAttribute("data-world");
+    hideOverlay(keySheet);
+    var hs = document.querySelector('.hotspot[data-world="' + n + '"]');
+    if (hs){
+      hs.scrollIntoView({block:"center", behavior:"smooth"});
+      hs.classList.remove("pulsing");
+      void hs.offsetWidth;
+      hs.classList.add("pulsing");
+      setTimeout(function(){ hs.classList.remove("pulsing"); }, 2600);
+    }
+  });
+});
+
+/* keyboard */
+document.addEventListener("keydown", function(ev){
+  if (ev.key === "Escape"){
+    if (!viewer.hidden) closeViewer();
+    else if (!keySheet.hidden) hideOverlay(keySheet);
+    else if (!gallerySheet.hidden) hideOverlay(gallerySheet);
+  }
+  if (!viewer.hidden){
+    if (ev.key === "ArrowLeft") document.getElementById("prevWorld").click();
+    if (ev.key === "ArrowRight") document.getElementById("nextWorld").click();
+  }
+});
+</script>
+</body>
+</html>
