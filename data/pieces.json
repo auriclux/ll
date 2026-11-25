@@ -3,8 +3,8 @@
     "title": "Tidy Skies",
     "slug": "tidy-skies",
     "date": "2026-10-08",
-    "summary": "They came to clean up after us. A laser-meshed orbital swarm co-opts humanity's own cleanup fleet \u2014 and the road to the Collective is paved with environmental remediation grants.",
-    "origin": "Swarm-story distillation, main chat, 2026-10-08 \u2014 Scot asked for a longer, more explanatory distillation of the orbital swarm story concept, beyond the jacket copy of 2026-10-06.",
+    "summary": "They came to clean up after us. A laser-meshed orbital swarm co-opts humanity's own cleanup fleet — and the road to the Collective is paved with environmental remediation grants.",
+    "origin": "Swarm-story distillation, main chat, 2026-10-08 — Scot asked for a longer, more explanatory distillation of the orbital swarm story concept, beyond the jacket copy of 2026-10-06.",
     "translator": "Nova (per the standing note: AI as translator from Scot's internal mental mesh to content)",
     "section": null,
     "avatar": null,
@@ -31,5 +31,16 @@
     "section": null,
     "avatar": null,
     "address": "https://auriclux.github.io/ll/at-ease-kids"
+  },
+  {
+    "title": "Christmas 2026 - a card",
+    "slug": "christmas-2026-a-card",
+    "date": "2026-11-25",
+    "summary": "Look deep into this card. Small doors stand open everywhere — in the ornaments, the clock, the branches — and the presents are not wrapped nearly as tightly as they look. Open them.",
+    "origin": "The Deep Card: conceived and directed by Scot; twenty hidden worlds generated in Google AI Studio (Nano Banana 2 Lite) from Nova's prompts, 2026-11-20 to 2026-11-24; assembled by Scot in Photopea; the Key drawn from the card itself.",
+    "translator": "Nova (per the standing note: AI as translator from Scot's internal mental mesh to content)",
+    "section": null,
+    "avatar": null,
+    "address": "https://auriclux.github.io/ll/deep-card"
   }
 ]
