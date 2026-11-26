@@ -66,12 +66,23 @@ On October 8, 2026, the story above was finished. In it, a machine called a Buil
 
 The Builder was already in orbit when I wrote it. It had been there since March 30.
 
-Its name is ASTRA, for Autonomous In-Space Tensioned Reflector Assembly, built at Caltech for DARPA's NOM4D program. It [launched from Vandenberg aboard SpaceX's Transporter-16](https://phys.org/news/2026-11-robot-successfully-space-autonomous-demo.html), riding on Momentus's Vigoride 7 as one of ten payloads, in a package about a cubic meter in size. Inside: struts, joints, motorized dispensers, an arm. DARPA compares the assembly to K'Nex.
+Its name is ASTRA, for Autonomous In-Space Tensioned Reflector Assembly, built at Caltech for DARPA's NOM4D program. It launched from Vandenberg aboard SpaceX's Transporter-16,[^1] riding on Momentus's Vigoride 7 as one of ten payloads, in a package about a cubic meter in size. Inside: struts, joints, motorized dispensers, an arm. DARPA compares the assembly to K'Nex.
 
-ASTRA went up carrying two prebuilt bays of a perimeter truss. In orbit, it [built a third](https://sciencedaily.com/releases/2026/11/261108233043.htm). "This is the first time that a structure has been autonomously constructed in space," said Sergio Pellegrino, who leads the team. On November 7 of this year I was texting my nephew about an orbital robot assembling a perimeter truss in low Earth orbit. I had just read the announcement, which Caltech and DARPA issued on November 5. I had not yet taken in that the story I finished on October 8 had been describing, in the large, a machine that had been flying since spring.
+ASTRA went up carrying two prebuilt bays of a perimeter truss. In orbit, it built a third.[^2] "This is the first time that a structure has been autonomously constructed in space," said Sergio Pellegrino, who leads the team. On November 7 of this year I was texting my nephew about an orbital robot assembling a perimeter truss in low Earth orbit. I had just read the announcement, which Caltech and DARPA issued on November 5. I had not yet taken in that the story I finished on October 8 had been describing, in the large, a machine that had been flying since spring.
 
 The correspondences are exact where it matters. The hands in this story arrive as a modest public program, and ASTRA is a modest public program. The building in this story is a repeatable primitive, one bay and then the next, and ASTRA is a machine for repeating bays. What separates ASTRA from the Builder is not a different machine. It is a parts list and a software update, which is the threshold this story is about.
 
 ASTRA will not finish its antenna. Eleven bays were planned; three stand; the mission ends in December, with a ground crew troubleshooting the machine through its twin in a Pasadena laboratory. The first Builder is clumsy, supervised, and behind schedule.
 
 In the story above, that was never a reassurance. The swarm did not need the first version to be good. It needed the work to be funded, flown, and filed under progress. On November 5, 2026, it was.
+
+[^1]: Caltech news release, "Robot successfully builds space structure in first autonomous construction demo," Phys.org, November 6, 2026. https://phys.org/news/2026-11-robot-successfully-space-autonomous-demo.html
+[^2]: Caltech news release, "Caltech robot makes history by building a structure in space," ScienceDaily, November 8, 2026. https://sciencedaily.com/releases/2026/11/261108233043.htm
+
+## Addendum, November 26, 2026
+
+The womb now has a permit. On November 25, the FCC authorized SpaceX to launch one million satellites for orbital data centers, a network SpaceX calls Starmind, with the first data centers planned to go up in 2027 and the full constellation licensed through 2040.[^3] The story above imagined orbital data centers as the swarm's destination; the destination now has a filing, a brand name, and a launch schedule.
+
+Two details deserve the record. The Wall Street Journal, listing the hurdles, names the one this story built its womb on: regulating temperature so the chips can keep operating. Heat was the binding constraint here in October, when it was fiction. It is the binding constraint in the FCC's record now. And the authorization covers optical intersatellite links, the laser mesh this story put up first, supplemented by radio for backup and command. The substrate, the mesh, and now the womb: three of the story's four arrivals have dates in the real world. The fourth was the doctrine, and the doctrine never announces itself.
+
+[^3]: Becky Peterson and Katherine Hamilton, "SpaceX Gets Approval to Launch One Million Satellites for Orbital Data Centers," The Wall Street Journal, November 25, 2026. https://www.wsj.com/business/fcc-authorizes-spacex-to-build-1-million-data-centers-in-space-0eb20ee7
